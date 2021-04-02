@@ -2,7 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import apiRouter from './routes';
+import dailyRouter from './resources/Daily/daily.routes';
 
 const app = express();
 
@@ -12,7 +12,7 @@ app.use(bodyParser.json({ limit: "30mb" }));
 app.use(bodyParser.urlencoded({ limit: "30mb" }));
 app.use(cors());
 
-app.use(apiRouter);
+app.use('/api/daily', dailyRouter);
 
 // TODO: use env variables for db creds
 const CONNECTION_URL = 'mongodb+srv://sflak_proj:n2S1EKjA4BPp5xNg@cluster0.6lbxi.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';

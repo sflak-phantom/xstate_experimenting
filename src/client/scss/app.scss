@@ -2,4 +2,37 @@ $theme-colors: (
     'primary': #0091ea //Covalence Blue!  :D
 );
 
-@import '../../../node_modules/bootstrap/scss/bootstrap.scss';
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center
+}
+
+p {
+    margin: 0,
+}
+
+.Item {
+  &_container {
+    @include flex-center();
+    &--title {
+      margin-bottom: 10px;  
+    }
+  }   
+  &_box {
+    @include flex-center();
+    flex-direction: column;
+    height: 50px;
+    width: 200px;
+    background-color: lightblue;
+    margin: 10px;
+  }
+  &_info {
+    @include flex-center();
+    flex-direction: column;
+    height: 50px;
+    width: 200px;
+    background-color: lightpink;
+    margin: 10px;
+  }
+}
