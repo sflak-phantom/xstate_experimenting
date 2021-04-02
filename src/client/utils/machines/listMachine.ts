@@ -52,27 +52,35 @@ const itemMachine = Machine<itemContext, itemStateSchema, itemEvent>({
   },
 });
 
-interface listEvent {
-  id: number;
-  value: string;
+interface listStateSchema {
+  states: {
+    initializing: {},
+    idle: {},
+  }
 }
 
-export const listMachine = Machine({
+type listEvent = { type: 'ITEM.NEW'; value: string; id: number } | { type: 'ITEM.UPDATE', value: string; id: number };
+
+interface listContext {
+  items: {}
+}
+
+export const listMachine = Machine<listContext, listStateSchema, listEvent>({
   id: 'list',
   context: {
-    items: [],
+    items: {},
   },
   initial: 'initializing',
   states: {
     initializing: {
-      entry: assign({
-        items: (ctx: any) => {
-          return ctx.items.map(item => ({
-            ...item,
-            ref: spawn(itemMachine.withContext(item)),
-          }));
-        },
-      }),
+      // entry: assign({
+      //   items: (ctx: any) => {
+      //     return ctx.items.map(item => ({
+      //       ...item,
+      //       ref: spawn(itemMachine.withContext(item)),
+      //     }));
+      //   },
+      // }),
       on: {
         '': 'idle',
       },
@@ -86,10 +94,7 @@ export const listMachine = Machine({
           items: (ctx: any, e: { value: string; id: number }) => {
             console.log('hallo');
             const newItem = { value: e.value, id: e.id };
-            return ctx.items.concat({
-              ...newItem,
-              ref: spawn(itemMachine.withContext(newItem)),
-            });
+            return {...ctx.items, [newItem.id]: { ...newItem, ref: spawn(itemMachine.withContext(newItem))}}
           },
         }),
       ],
@@ -97,21 +102,14 @@ export const listMachine = Machine({
     'ITEM.UPDATE': {
       actions: [
         assign({
-          items: (ctx: any, e: listEvent) =>
-            ctx.items.map(item => {
-              console.log(
-                '%c 🍎 item: ',
-                'font-size:12px;background-color: #465975;color:#fff;',
-                item
-              );
-              console.log(
-                '%c 🍯 e: ',
-                'font-size:12px;background-color: #6EC1C2;color:#fff;',
-                e
-              );
-              const { value } = e;
-              return item.id === e.id ? { ...item, value, ref: item.ref } : item;
-            }),
+          items: (ctx, e) => ({
+            ...ctx.items,
+            [e.id]: {
+              ...ctx.items[e.id],
+              ...e,
+              ref: ctx.items[e.id].ref
+            }
+          })
         }),
       ],
     },

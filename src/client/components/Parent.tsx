@@ -1,32 +1,52 @@
-import React, { useState } from 'react';
-import { useMachine } from '@xstate/react';
-import listMachine from '../utils/machines/listMachine';
-
+import React, { useState, useContext, useEffect } from 'react';
+import { render } from 'react-dom';
+import { MachineContext} from '../state';
 import Child from './Child'
 
 export const Parent: React.FunctionComponent = () => {
-  const [listMachState, sendToListMach] = useMachine(listMachine);
+  const [listMachState, sendToListMach] = useContext(MachineContext);
   const [nextId, setNextId] = useState(1);
-  console.log('%c 🍼️ listMachState: ', 'font-size:12px;background-color: #3F7CFF;color:#fff;', listMachState.context);
+
+  interface Iitem {
+    id: number,
+    value: string,
+    ref: unknown
+  }
+  
 
   const addNewItem = () => {
-    console.log('%c 🥧 nextId: ', 'font-size:12px;background-color: #EA7E5C;color:#fff;', nextId);
     sendToListMach("ITEM.NEW", { value: "Im alive", id: nextId });
     setNextId(nextId + 1);
   }
+
+  const renderChild = (itemId) => {
+    const { items } = listMachState.context;
+    render(<Child itemMachRef={items[itemId].ref} />, document.getElementById(`item-${itemId}`))
+  }
+
+  useEffect(() => {
+    const prevId = nextId - 1;
+    if(listMachState.context.items && listMachState.context.items[prevId]) {
+      renderChild(nextId - 1)
+    }
+  }, [nextId])
+
   return (
     <div className="Item_container">
+      <button className='Item_addButton' onClick={() => addNewItem()}>Add list item</button>
       <div className="Item_container--items">
-        <button onClick={() => addNewItem()}>Add list item</button>
         <p className="Item_container--title">Item Machine States</p>
-        <div>{listMachState.context.items.map(item => <Child key={item.id} itemMachRef={item.ref} />)}</div>
+        {/* @ts-ignore because */}
+        <div>{Object.values(listMachState.context.items).map((item: Iitem) => <div id={`item-${item.id}`}></div>)}</div>
       </div>
       <div className="Item_container--list">
         <p className="Item_container--title">List Machine State</p>
-          {listMachState.context.items.map(item => {
+          {Object.values(listMachState.context.items).map(item => {
             return (
               <div className="Item_info">
+                {/* @ts-ignore because */}
                 <p className="Item_info--text">id: {item.id}</p>
+                {/* @ts-ignore because */}
                 <p className="Item_info--text">id: {item.value}</p>
               </div>
               )

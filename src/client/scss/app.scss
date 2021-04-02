@@ -1,7 +1,3 @@
-$theme-colors: (
-    'primary': #0091ea //Covalence Blue!  :D
-);
-
 @mixin flex-center {
   display: flex;
   justify-content: center;
@@ -16,9 +12,13 @@ p {
   &_container {
     @include flex-center();
     &--title {
-      margin-bottom: 10px;  
+      margin: 10px;
     }
-  }   
+  }
+  &_addButton {
+    margin: 5px;
+    align-self: flex-start;
+  }
   &_box {
     @include flex-center();
     flex-direction: column;
